@@ -21,10 +21,9 @@ class Trait:
             name: str,
             dimensions: Tuple[int, int],
             position: Tuple[int, int],
-            child_traits: Tuple[Trait, ...] = ()
+            child_traits: Tuple[Trait, ...] = (),
+            optional: bool = False
     ):
-        self.n_frames = None
-        self.sequence = None
         self._animated = False
         self._transparent = False
         self._parent = None
@@ -34,6 +33,7 @@ class Trait:
         self._name = name
         self._dimensions = dimensions
         self._position = position
+        self.optional = optional
         self.image_init()
         self.children = child_traits
 
@@ -153,9 +153,6 @@ class Trait:
         try:
             image = Image.open(selected_file_path)
             self.animated = getattr(image, "is_animated", False)
-            if self.animated:
-                self.build_sequence(image)
-
             image.thumbnail(self.dimensions)
             # image.transform(self.dimensions, Image.QUAD, (0, 0, 0, image.height, image.width, image.height, image.width, 0))
             return image.convert("RGBA")
@@ -166,25 +163,3 @@ class Trait:
         image = self.get_random_image()
         self._image = image
 
-    def build_sequence(self, image):
-        if not self.sequence:
-            self.sequence = []
-
-        print(image)
-        index = 0
-        while image.tell() == index:
-            for frame in ImageSequence.Iterator(image):
-                cloned_frame = frame.copy()
-                if self.sequence[index]:
-                    new_frame = self.sequence[index].copy()
-                    new_frame.paste(cloned_frame, self.position, cloned_frame)
-                    self.sequence[index] = new_frame
-                else:
-                    if self.sequence[index -1]:
-                        new_frame = self.sequence[index - 1].copy()
-                    else:
-                        new_frame = self.image.copy()
-                    new_frame.paste(cloned_frame, self.position, cloned_frame)
-                    self.sequence.append(new_frame)
-
-                index += 1

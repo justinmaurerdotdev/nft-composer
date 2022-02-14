@@ -8,7 +8,7 @@ import sqlite3
 cwd = Path.cwd()
 img_src_root = Path(cwd / "source-images")
 DATABASE = Path(cwd / "nfts-made.db")
-desired_count = 100
+desired_count = 400
 unique_images = []
 count = 0
 
@@ -27,26 +27,188 @@ def query_db(query, args=(), one=False):
 
 
 def get_bodies():
-    left_arm1 = Trait(
-        img_src=Path(img_src_root / "leftArm"),
-        name="leftArm",
-        position=(0, 896),
-        dimensions=(256, 256)
+    squiggles = Trait(
+        img_src=Path(img_src_root / "squiggles"),
+        name="squiggles",
+        position=(0, 0),
+        dimensions=(2048, 2048),
+        optional=True
     )
-    right_arm1 = Trait(img_src=Path(img_src_root / "rightArm1"), name="rightArm", position=(1792, 896),
-                       dimensions=(256, 256))
-    legs1 = Trait(img_src=Path(img_src_root / "legs"), name="legs", position=(896, 1792), dimensions=(256, 256))
-    traits_body1 = (left_arm1, right_arm1, legs1)
-    body1 = Trait(img_src=Path(img_src_root / "body"), name="body1", dimensions=(1200, 1200), position=(200, 200),
-                  child_traits=traits_body1)
+    clouds = Trait(
+        img_src=Path(img_src_root / "clouds"),
+        name="clouds",
+        position=(0, 0),
+        dimensions=(2048, 2048),
+        optional=True
+    )
+    stars = Trait(
+        img_src=Path(img_src_root / "stars"),
+        name="stars",
+        position=(0, 0),
+        dimensions=(2048, 2048),
+        optional=True
+    )
+    roll_body = Trait(
+        img_src=Path(img_src_root / "roll-body"),
+        name="roll_body",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    roll_mouth = Trait(
+        img_src=Path(img_src_root / "roll-mouth"),
+        name="roll_mouth",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    roll_cheeks = Trait(
+        img_src=Path(img_src_root / "roll-cheeks"),
+        name="roll_cheeks",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    roll_eyes = Trait(
+        img_src=Path(img_src_root / "roll-eyes"),
+        name="roll_eyes",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    roll_topping = Trait(
+        img_src=Path(img_src_root / "roll-topping"),
+        name="roll_topping",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
 
-    right_arm2 = Trait(img_src=Path(img_src_root / "rightArm2"), name="rightArm", position=(1400, 896),
-                       dimensions=(356, 256))
-    traits_body2 = (left_arm1, right_arm2, legs1)
-    body2 = Trait(img_src=Path(img_src_root / "body2"), name="body2", dimensions=(1200, 1200), position=(400, 400),
-                  child_traits=traits_body2)
+    traits_roll = (squiggles, stars, clouds, roll_body, roll_mouth, roll_cheeks, roll_eyes, roll_topping)
+    base_trait_roll = Trait(
+        img_src=Path(img_src_root / "base"),
+        name="roll",
+        dimensions=(2048, 2048),
+        position=(0, 0),
+        child_traits=traits_roll
+    )
 
-    return body1, body2
+    handroll_body = Trait(
+        img_src=Path(img_src_root / "handroll-body"),
+        name="handroll_body",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    handroll_mouth = Trait(
+        img_src=Path(img_src_root / "handroll-mouth"),
+        name="handroll_mouth",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    handroll_cheeks = Trait(
+        img_src=Path(img_src_root / "handroll-cheeks"),
+        name="handroll_cheeks",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    handroll_eyes = Trait(
+        img_src=Path(img_src_root / "handroll-eyes"),
+        name="handroll_eyes",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    handroll_topping = Trait(
+        img_src=Path(img_src_root / "handroll-topping"),
+        name="handroll_topping",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+
+    traits_handroll = (
+        squiggles, stars, clouds, handroll_body, handroll_mouth, handroll_cheeks, handroll_eyes, handroll_topping)
+    base_trait_handroll = Trait(
+        img_src=Path(img_src_root / "base"),
+        name="handroll", dimensions=(2048, 2048),
+        position=(0, 0),
+        child_traits=traits_handroll
+    )
+
+    tempura_body = Trait(
+        img_src=Path(img_src_root / "tempura-body"),
+        name="tempura_body",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    tempura_mouth = Trait(
+        img_src=Path(img_src_root / "tempura-mouth"),
+        name="tempura_mouth",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    tempura_cheeks = Trait(
+        img_src=Path(img_src_root / "tempura-cheeks"),
+        name="tempura_cheeks",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    tempura_eyes = Trait(
+        img_src=Path(img_src_root / "tempura-eyes"),
+        name="tempura_eyes",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    tempura_eyebrows = Trait(
+        img_src=Path(img_src_root / "tempura-eyebrows"),
+        name="tempura_eyebrows",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+
+    traits_tempura = (squiggles, stars, clouds, tempura_body, tempura_mouth, tempura_cheeks, tempura_eyes, tempura_eyebrows)
+    base_trait_tempura = Trait(
+        img_src=Path(img_src_root / "base"),
+        name="tempura",
+        dimensions=(2048, 2048),
+        position=(0, 0),
+        child_traits=traits_tempura
+    )
+
+    sushi_body = Trait(
+        img_src=Path(img_src_root / "sushi-body"),
+        name="sushi_body",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    sushi_mouth = Trait(
+        img_src=Path(img_src_root / "sushi-mouth"),
+        name="sushi_mouth",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    sushi_cheeks = Trait(
+        img_src=Path(img_src_root / "sushi-cheeks"),
+        name="sushi_cheeks",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    sushi_eyes = Trait(
+        img_src=Path(img_src_root / "sushi-eyes"),
+        name="sushi_eyes",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+    sushi_topping = Trait(
+        img_src=Path(img_src_root / "sushi-topping"),
+        name="sushi_topping",
+        position=(0, 0),
+        dimensions=(2048, 2048)
+    )
+
+    traits_sushi = (
+        squiggles, stars, clouds, sushi_body, sushi_mouth, sushi_cheeks, sushi_eyes, sushi_topping)
+    base_trait_sushi = Trait(
+        img_src=Path(img_src_root / "base"),
+        name="sushi", dimensions=(2048, 2048),
+        position=(0, 0),
+        child_traits=traits_sushi
+    )
+
+    return base_trait_roll, base_trait_handroll, base_trait_tempura, base_trait_sushi
 
 
 def get_colors():
@@ -71,8 +233,8 @@ while len(unique_images) < desired_count:
         print(img_checksum)
 
         db.execute("INSERT INTO nfts_made (hash, unique_string, traits) VALUES (?, ?, ?)",
-                 (str(img_checksum), my_canvas.unique_string, json.JSONEncoder().encode(
-                     my_canvas.traits_data)))
+                   (str(img_checksum), my_canvas.unique_string, json.JSONEncoder().encode(
+                       my_canvas.traits_data)))
         db.commit()
 
     db.close()

@@ -2,3 +2,4 @@ venv
 source-images
 output_images
 nfts-made.db
+__pycache__/

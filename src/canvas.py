@@ -12,8 +12,6 @@ class Canvas:
 
     def __init__(self, img_src_root: Path, output_path: Path, bodies: Tuple[Trait, ...], size: Tuple[int, int], filename: str,
                  bg_colors: Tuple[Tuple[int, int, int], ...] | None = None):
-        self.sequence = None
-        self.n_frames = 0
         self._checksum = None
         self._filename = filename
         self._bodies = bodies
@@ -93,19 +91,19 @@ class Canvas:
 
     def draw_trait(self, trait: Trait):
         # if the trait has children, loop through them and place the traits
-        self.unique_string += trait.uid
-        if trait.animated:
-            self.animated = True
-            print("About to render " + str(n_frames) + " frames")
-            if n_frames > self.n_frames:
-                self.n_frames = n_frames
-            self.build_sequence(trait)
-        self.image.paste(trait.image, trait.position, trait.image)
-        self.save_trait_data(trait)
+        optional = getattr(trait, "optional", False)
+        # coin flip for optional traits
+        if (optional and randint(0, 1) == 1) or not optional:
+            self.unique_string += trait.uid
+            if trait.animated:
+                self.animated = True
 
-        if trait.has_children():
-            for trait in trait.children:
-                self.draw_trait(trait)
+            self.image.paste(trait.image, trait.position, trait.image)
+            self.save_trait_data(trait)
+
+            if trait.has_children():
+                for trait in trait.children:
+                    self.draw_trait(trait)
 
     def save_trait_data(self, trait):
         trait_data = {
@@ -128,26 +126,3 @@ class Canvas:
             self.image.save(output_name, save_all=True, append_images=self.sequence, duration=self.n_frames, loop=1)
         else:
             self.image.save(output_name, img_type)
-
-    def build_sequence(self, trait):
-        if not self.sequence:
-            self.sequence = []
-
-        index = 1
-        while index < self.n_frames:
-            for frame in ImageSequence.Iterator(trait.image):
-                cloned_frame = frame.copy()
-                if self.sequence[index]:
-                    new_frame = self.sequence[index].copy()
-                    new_frame.paste(cloned_frame, trait.position, cloned_frame)
-                    self.sequence[index] = new_frame
-                else:
-                    if self.sequence[index -1]:
-                        new_frame = self.sequence[index - 1].copy()
-                    else:
-                        new_frame = self.image.copy()
-                    new_frame.paste(cloned_frame, trait.position, cloned_frame)
-                    self.sequence.append(new_frame)
-
-                index += 1
-
