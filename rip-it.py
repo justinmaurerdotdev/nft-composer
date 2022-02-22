@@ -3,7 +3,7 @@ import json
 from src.trait import Trait
 from src.canvas import Canvas
 from pathlib import Path
-import sqlite3
+import dbtools
 
 cwd = Path.cwd()
 img_src_root = Path(cwd / "source-images")
@@ -13,20 +13,7 @@ unique_images = []
 count = 0
 
 
-def get_db():
-    db = sqlite3.connect(DATABASE)
-    db.row_factory = sqlite3.Row
-    return db
-
-
-def query_db(query, args=(), one=False):
-    cur = get_db().execute(query, args)
-    rv = cur.fetchall()
-    cur.close()
-    return (rv[0] if rv else None) if one else rv
-
-
-def get_bodies():
+def get_body(body_type):
     squiggles = Trait(
         img_src=Path(img_src_root / "squiggles"),
         name="squiggles",
@@ -82,7 +69,7 @@ def get_bodies():
     traits_roll = (squiggles, stars, clouds, roll_body, roll_mouth, roll_cheeks, roll_eyes, roll_topping)
     base_trait_roll = Trait(
         img_src=Path(img_src_root / "base"),
-        name="roll",
+        name="base",
         dimensions=(2048, 2048),
         position=(0, 0),
         child_traits=traits_roll
@@ -123,7 +110,7 @@ def get_bodies():
         squiggles, stars, clouds, handroll_body, handroll_mouth, handroll_cheeks, handroll_eyes, handroll_topping)
     base_trait_handroll = Trait(
         img_src=Path(img_src_root / "base"),
-        name="handroll", dimensions=(2048, 2048),
+        name="base", dimensions=(2048, 2048),
         position=(0, 0),
         child_traits=traits_handroll
     )
@@ -159,10 +146,11 @@ def get_bodies():
         dimensions=(2048, 2048)
     )
 
-    traits_tempura = (squiggles, stars, clouds, tempura_body, tempura_mouth, tempura_cheeks, tempura_eyes, tempura_eyebrows)
+    traits_tempura = (
+        squiggles, stars, clouds, tempura_body, tempura_mouth, tempura_cheeks, tempura_eyes, tempura_eyebrows)
     base_trait_tempura = Trait(
         img_src=Path(img_src_root / "base"),
-        name="tempura",
+        name="base",
         dimensions=(2048, 2048),
         position=(0, 0),
         child_traits=traits_tempura
@@ -203,12 +191,24 @@ def get_bodies():
         squiggles, stars, clouds, sushi_body, sushi_mouth, sushi_cheeks, sushi_eyes, sushi_topping)
     base_trait_sushi = Trait(
         img_src=Path(img_src_root / "base"),
-        name="sushi", dimensions=(2048, 2048),
+        name="base", dimensions=(2048, 2048),
         position=(0, 0),
         child_traits=traits_sushi
     )
+    if body_type == 'handroll':
+        return base_trait_handroll
+    elif body_type == 'roll':
+        return base_trait_roll
+    elif body_type == 'sushi':
+        return base_trait_sushi
+    elif body_type == 'tempura':
+        return base_trait_tempura
+    else:
+        return Exception
 
-    return base_trait_roll, base_trait_handroll, base_trait_tempura, base_trait_sushi
+
+def get_bodies():
+    return get_body('handroll'), get_body('roll'), get_body('sushi'), get_body('tempura')
 
 
 def get_colors():
@@ -226,15 +226,15 @@ while len(unique_images) < desired_count:
     my_canvas = Canvas(img_src_root=Path("./source-images/"), output_path=Path("./output_images"),
                        bodies=bodies, size=(2048, 2048), filename=filename, bg_colors=colors)
     img_checksum = my_canvas.checksum
-    db = get_db()
+    db = dbtools.get_db()
     if img_checksum not in unique_images:
         unique_images.append(img_checksum)
         my_canvas.save()
         print(img_checksum)
 
-        db.execute("INSERT INTO nfts_made (hash, unique_string, traits) VALUES (?, ?, ?)",
-                   (str(img_checksum), my_canvas.unique_string, json.JSONEncoder().encode(
-                       my_canvas.traits_data)))
+        db.execute("INSERT INTO nfts_made (image_path, mint_queue, hash, unique_string, traits) VALUES (?, ?, ?, ?, ?)",
+                   (str(my_canvas.filepath), len(unique_images), str(img_checksum), my_canvas.unique_string,
+                    json.JSONEncoder().encode(my_canvas.traits_data)))
         db.commit()
 
     db.close()

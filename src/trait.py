@@ -22,8 +22,10 @@ class Trait:
             dimensions: Tuple[int, int],
             position: Tuple[int, int],
             child_traits: Tuple[Trait, ...] = (),
-            optional: bool = False
+            optional: bool = False,
+            which: str | None = None,
     ):
+        self._filepath = None
         self._animated = False
         self._transparent = False
         self._parent = None
@@ -34,7 +36,10 @@ class Trait:
         self._dimensions = dimensions
         self._position = position
         self.optional = optional
-        self.image_init()
+        if which:
+            self.image_init(which)
+        else:
+            self.rand_image_init()
         self.children = child_traits
 
     @property
@@ -84,6 +89,14 @@ class Trait:
     @image.setter
     def image(self, image):
         self._image = image
+
+    @property
+    def filepath(self):
+        return self._filepath
+
+    @filepath.setter
+    def filepath(self, filepath):
+        self._filepath = filepath
 
     @property
     def name(self):
@@ -147,7 +160,7 @@ class Trait:
 
         selected_file_path = all_images[num]
         extension = selected_file_path.suffix
-
+        self._filepath = selected_file_path
         self.uid = selected_file_path.name.replace(extension, "")
         # print(self.uid)
         try:
@@ -159,7 +172,32 @@ class Trait:
         except OSError:
             print("cannot find file: " + str(selected_file_path))
 
-    def image_init(self):
+    def rand_image_init(self):
         image = self.get_random_image()
+        self._image = image
+
+    def get_image(self, trait_name):
+        images = self.get_trait_images()
+        the_image = None
+        for img in images:
+            extension = img.suffix
+            name_sans_extension = img.name.replace(extension, "")
+            if name_sans_extension == trait_name:
+                the_image = img
+                print(str(the_image))
+                self._filepath = str(the_image)
+                break
+
+        try:
+            image = Image.open(the_image)
+            self.animated = getattr(image, "is_animated", False)
+            image.thumbnail(self.dimensions)
+            # image.transform(self.dimensions, Image.QUAD, (0, 0, 0, image.height, image.width, image.height, image.width, 0))
+            return image.convert("RGBA")
+        except OSError:
+            print("cannot find file: " + str(the_image))
+
+    def image_init(self, which):
+        image = self.get_image(trait_name=which)
         self._image = image
 

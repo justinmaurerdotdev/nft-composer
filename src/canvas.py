@@ -12,6 +12,7 @@ class Canvas:
 
     def __init__(self, img_src_root: Path, output_path: Path, bodies: Tuple[Trait, ...], size: Tuple[int, int], filename: str,
                  bg_colors: Tuple[Tuple[int, int, int], ...] | None = None):
+        self._filepath = None
         self._checksum = None
         self._filename = filename
         self._bodies = bodies
@@ -70,6 +71,14 @@ class Canvas:
         self._filename = filename
 
     @property
+    def filepath(self):
+        return self._filepath
+
+    @filepath.setter
+    def filepath(self, filepath: str):
+        self._filepath = filepath
+
+    @property
     def checksum(self):
         return self._checksum
 
@@ -122,6 +131,7 @@ class Canvas:
             img_type = "JPEG"
         file = self.filename + extension
         output_name = self.output_path / file
+        self.filepath = output_name
         if self.animated:
             self.image.save(output_name, save_all=True, append_images=self.sequence, duration=self.n_frames, loop=1)
         else:
